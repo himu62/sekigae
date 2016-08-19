@@ -25,8 +25,11 @@ make server
 
 ## Libraries
 
+- GNU make
+- Docker
 - Go
 - gin-gonic/gin
+- sql-migrate
 - npm
 - React
 - Redux

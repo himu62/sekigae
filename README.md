@@ -6,19 +6,24 @@ Treasure 2016 Sekigae Application
 
 See `make`
 
-## Libraries
+## Dependencies
 
 - GNU make
 - Docker
 - Go
-- gin-gonic/gin
 - MySQL client
 - sql-migrate
 - npm
+
+## Libraries
+
+- gin-gonic/gin
 - React
 - Redux
 - jQuery (only for Ajax)
 - webpack
+- TypeScript
+- typings
 - node-sass
 
 ## Author

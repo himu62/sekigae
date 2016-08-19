@@ -4,24 +4,7 @@ Treasure 2016 Sekigae Application
 
 ## Usage
 
-#### MySQL (Docker)
-```
-make docker/build
-make docker/start
-make docker/stop
-```
-
-#### Migration
-```
-make db/create
-make db/migrate
-make db/clean
-```
-
-#### Server
-```
-make server
-```
+See `make`
 
 ## Libraries
 
@@ -29,11 +12,12 @@ make server
 - Docker
 - Go
 - gin-gonic/gin
+- MySQL client
 - sql-migrate
 - npm
 - React
 - Redux
-- jQuery
+- jQuery (only for Ajax)
 - webpack
 - node-sass
 

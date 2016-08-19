@@ -1,0 +1,4 @@
+node_modules/
+typings/
+public/css/style.css
+public/js/bundle.js

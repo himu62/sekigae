@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/himu62/sekigae/app"
 )
 
 func main() {
-	r := gin.Default()
-	r.Static("/", "public")
-	r.Run(":8888")
+	app := app.New()
+	app.Init()
+	app.Run()
 }

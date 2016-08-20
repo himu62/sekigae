@@ -1,5 +1,5 @@
 .PHONY: more \
-	docker/build docker/start docker/stop docker/clean \
+	docker/build docker/start docker/stop docker/clean docker/bash \
 	db/create db/migrate db/clean \
 	server server/test server/build server/deps \
 	client/build client/watch client/deps
@@ -19,6 +19,9 @@ docker/stop:                                      ## MySQLコンテナを停止
 
 docker/clean:                                     ## MySQLコンテナを削除
 	docker-compose rm
+
+docker/bash:                                      ## MySQLコンテナのコンソール起動
+	docker exec -it $(shell docker-compose ps -q) bash
 
 db/create:                                        ## DBを作成
 	mysql --protocol tcp -u root -ppassword -e 'CREATE DATABASE sekigae DEFAULT COLLATE utf8mb4_unicode_ci'

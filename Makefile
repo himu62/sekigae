@@ -46,7 +46,7 @@ server/deps:                                      ## サーバの依存パッケ
 	go get -v github.com/rubenv/sql-migrate/...
 
 client/build:                                     ## クライアントをビルド
-	NODE_ENV=production ./node_modules/.bin/webpack -p
+	NODE_ENV=production ./node_modules/.bin/webpack
 
 client/watch:                                     ## クライアントを自動コンパイル
 	NODE_ENV=development ./node_modules/.bin/webpack --watch

@@ -3,6 +3,7 @@ var path = require('path');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var plugins = [];
+var css_loader = 'css-loader!sass-loader';
 if(process.env.NODE_ENV === 'production') {
 	plugins = [
 		new webpack.optimize.UglifyJsPlugin(),
@@ -13,6 +14,7 @@ if(process.env.NODE_ENV === 'production') {
 			}
 		})
 	];
+	css_loader = 'css-loader?minimize!sass-loader';
 }
 
 module.exports = [
@@ -47,7 +49,7 @@ module.exports = [
 			loaders: [
 				{
 					test: /\.scss$/,
-					loader: ExtractTextPlugin.extract('style-loader', 'css-loader!sass-loader')
+					loader: ExtractTextPlugin.extract('style-loader', css_loader)
 				}
 			]
 		},

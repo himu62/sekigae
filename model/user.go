@@ -17,7 +17,7 @@ type (
 func FindUsers(db *sql.DB) ([]User, error) {
 	users := make([]User, 0, 30)
 
-	rows, err := db.Query("SELECT * FROM users")
+	rows, err := db.Query("SELECT ID, Name, Github, Image FROM users")
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (user *User) Insert(db *sql.DB) error {
 		return err
 	}
 	if _, err := tx.Query(
-		"INSERT INTO users(name, github, image) VALUES(?, ?, ?)",
+		"INSERT INTO users(Name, Github, Image) VALUES(?, ?, ?)",
 		user.Name,
 		user.Github,
 		user.Image,
@@ -61,7 +61,7 @@ func (user *User) Update(db *sql.DB) error {
 		return err
 	}
 	if _, err := tx.Query(
-		"UPDATE users SET name = ?, github = ?, image = ?",
+		"UPDATE users SET Name = ?, Github = ?, Image = ?",
 		user.Name,
 		user.Github,
 		user.Image,
@@ -79,7 +79,7 @@ func (user *User) Delete(db *sql.DB) error {
 		return err
 	}
 	if _, err := tx.Query(
-		"DELETE FROM users WHERE id = ?",
+		"DELETE FROM users WHERE ID = ?",
 		user.ID,
 	); err != nil {
 		tx.Rollback()

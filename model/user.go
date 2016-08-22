@@ -43,7 +43,7 @@ func (user *User) Insert(db *sql.DB) error {
 		return err
 	}
 	if _, err := tx.Query(
-		"INSERT INTO users(Name, Github, Image) VALUES(?, ?, ?)",
+		"INSERT INTO users(Name, Github, Image) VALUES(?,?,?)",
 		user.Name,
 		user.Github,
 		user.Image,
@@ -61,7 +61,7 @@ func (user *User) Update(db *sql.DB) error {
 		return err
 	}
 	if _, err := tx.Query(
-		"UPDATE users SET Name = ?, Github = ?, Image = ?",
+		"UPDATE users SET Name=?, Github=?, Image=?",
 		user.Name,
 		user.Github,
 		user.Image,
@@ -79,7 +79,7 @@ func (user *User) Delete(db *sql.DB) error {
 		return err
 	}
 	if _, err := tx.Query(
-		"DELETE FROM users WHERE ID = ?",
+		"DELETE FROM users WHERE ID=?",
 		user.ID,
 	); err != nil {
 		tx.Rollback()

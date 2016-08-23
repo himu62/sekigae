@@ -1,7 +1,10 @@
 package controller
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
+	"github.com/himu62/sekigae/db"
 	"github.com/himu62/sekigae/model"
 )
 
@@ -16,23 +19,107 @@ func AddUserRoutes(r *gin.RouterGroup) {
 
 	g := r.Group("/users")
 	{
-		g.GET("/", ctl.fetch)
 		g.GET("/list", ctl.list)
-		g.POST("/", ctl.create)
+		g.POST("", ctl.create)
+		g.POST("/image", ctl.uploadImage)
+		g.PUT("/:id", ctl.update)
+		g.DELETE("/:id", ctl.delete)
 	}
 }
 
-func (ctl *User) fetch(c *gin.Context) {
-	data := &model.User{}
-	c.JSON(200, data)
-}
-
 func (ctl *User) list(c *gin.Context) {
-	data := make([]model.User, 5)
+	db, err := db.New()
+	if err != nil {
+		c.JSON(500, NewError("failed to connect DB"))
+		return
+	}
+	data, err := model.FindUsers(db)
+	if err != nil {
+		c.JSON(500, NewError("failed to fetch users"))
+		return
+	}
+
 	c.JSON(200, data)
 }
 
 func (ctl *User) create(c *gin.Context) {
-	data := &model.User{}
+	user := &model.User{}
+	if err := c.Bind(user); err != nil {
+		c.JSON(400, NewError("request parameter is wrong"))
+		return
+	}
+	db, err := db.New()
+	if err != nil {
+		c.JSON(500, NewError("failed to connect DB"))
+		return
+	}
+	if err := user.Insert(db); err != nil {
+		c.JSON(500, NewError("failed to insert record"))
+		return
+	}
+
+	c.JSON(200, user)
+}
+
+func (ctl *User) uploadImage(c *gin.Context) {
+	_, header, err := c.Request.FormFile("image")
+	if err != nil {
+		c.JSON(400, NewError("request file is invalid"))
+		return
+	}
+
+	url, err := model.CreateImage(header)
+	if err != nil {
+		c.JSON(500, NewError("failed to upload file"))
+		return
+	}
+
+	data := map[string]string{"file": url}
+	c.JSON(201, data)
+}
+
+func (ctl *User) update(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 0)
+	if err != nil {
+		c.JSON(400, NewError("request parameter is wrong."))
+		return
+	}
+	user := &model.User{}
+	if err = c.Bind(user); err != nil {
+		c.JSON(400, NewError("request parameter is wrong"))
+		return
+	}
+	user.ID = uint8(id)
+	db, err := db.New()
+	if err != nil {
+		c.JSON(500, NewError("failed to connect DB"))
+		return
+	}
+	if err := user.Update(db); err != nil {
+		c.JSON(500, NewError("failed to update record"))
+		return
+	}
+
+	c.JSON(200, user)
+}
+
+func (ctl *User) delete(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 0)
+	if err != nil {
+		c.JSON(400, NewError("request parameter is wrong."))
+		return
+	}
+	user := &model.User{ID: uint8(id)}
+	db, err := db.New()
+	if err != nil {
+		c.JSON(500, NewError("failed to connect DB"))
+		return
+	}
+	if err := user.Delete(db); err != nil {
+		c.JSON(500, NewError("failed to delete record"))
+		return
+	}
+
+	data := map[string]interface{}{"id": 0}
 	c.JSON(200, data)
 }

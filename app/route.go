@@ -10,7 +10,7 @@ func (app *App) Init() {
 	app.Engine.StaticFile("/css/style.css", "public/css/style.css")
 	app.Engine.StaticFile("/js/bundle.js", "public/js/bundle.js")
 
-	g := app.Engine.Group("/api")
+	g := app.Engine.Group("/api", CSRF())
 	controller.AddSeatRoutes(g)
 	controller.AddUserRoutes(g)
 }

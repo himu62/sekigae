@@ -1,5 +1,9 @@
 package controller
 
-func NewError(msg string) map[string]string {
-	return map[string]string{"error": msg}
+import (
+	"github.com/gin-gonic/gin"
+)
+
+func error(c *gin.Context, status int, msg string) {
+	c.JSON(status, map[string]string{"error": msg})
 }

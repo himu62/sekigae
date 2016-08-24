@@ -24,7 +24,7 @@ docker/bash:                                      ## MySQLコンテナのコン�
 	docker exec -it $(shell docker-compose ps -q) bash
 
 db/create:                                        ## DBを作成
-	mysql --protocol tcp -u root -ppassword -e 'CREATE DATABASE sekigae DEFAULT COLLATE utf8mb4_unicode_ci'
+	mysql --protocol tcp -u root -ppassword -e 'CREATE DATABASE sekigae CHARCTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
 
 db/migrate:                                       ## DBをマイグレーション
 	sql-migrate up

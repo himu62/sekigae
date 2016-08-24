@@ -30,12 +30,12 @@ func AddUserRoutes(r *gin.RouterGroup) {
 func (ctl *User) list(c *gin.Context) {
 	db, err := db.New()
 	if err != nil {
-		c.JSON(500, NewError("failed to connect DB"))
+		error(c, 500, "failed to connect DB.")
 		return
 	}
 	data, err := model.FindUsers(db)
 	if err != nil {
-		c.JSON(500, NewError("failed to fetch users"))
+		error(c, 500, "failed to fetch users.")
 		return
 	}
 
@@ -45,16 +45,16 @@ func (ctl *User) list(c *gin.Context) {
 func (ctl *User) create(c *gin.Context) {
 	user := &model.User{}
 	if err := c.Bind(user); err != nil {
-		c.JSON(400, NewError("request parameter is wrong"))
+		error(c, 400, "request parameter is wrong.")
 		return
 	}
 	db, err := db.New()
 	if err != nil {
-		c.JSON(500, NewError("failed to connect DB"))
+		error(c, 500, "failed to connect DB.")
 		return
 	}
 	if err := user.Insert(db); err != nil {
-		c.JSON(500, NewError("failed to insert record"))
+		error(c, 500, "failed to insert record.")
 		return
 	}
 
@@ -64,13 +64,13 @@ func (ctl *User) create(c *gin.Context) {
 func (ctl *User) uploadImage(c *gin.Context) {
 	_, header, err := c.Request.FormFile("image")
 	if err != nil {
-		c.JSON(400, NewError("request file is invalid"))
+		error(c, 400, "request file is invalid.")
 		return
 	}
 
 	url, err := model.CreateImage(header)
 	if err != nil {
-		c.JSON(500, NewError("failed to upload file"))
+		error(c, 500, "failed to upload file.")
 		return
 	}
 
@@ -81,22 +81,22 @@ func (ctl *User) uploadImage(c *gin.Context) {
 func (ctl *User) update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 0)
 	if err != nil {
-		c.JSON(400, NewError("request parameter is wrong."))
+		error(c, 400, "request parameter is wrong.")
 		return
 	}
 	user := &model.User{}
 	if err = c.Bind(user); err != nil {
-		c.JSON(400, NewError("request parameter is wrong"))
+		error(c, 400, "request parameter is wrong.")
 		return
 	}
 	user.ID = uint8(id)
 	db, err := db.New()
 	if err != nil {
-		c.JSON(500, NewError("failed to connect DB"))
+		error(c, 500, "failed to connect DB.")
 		return
 	}
 	if err := user.Update(db); err != nil {
-		c.JSON(500, NewError("failed to update record"))
+		error(c, 500, "failed to update record.")
 		return
 	}
 
@@ -106,17 +106,17 @@ func (ctl *User) update(c *gin.Context) {
 func (ctl *User) delete(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 0)
 	if err != nil {
-		c.JSON(400, NewError("request parameter is wrong."))
+		error(c, 400, "request parameter is wrong.")
 		return
 	}
 	user := &model.User{ID: uint8(id)}
 	db, err := db.New()
 	if err != nil {
-		c.JSON(500, NewError("failed to connect DB"))
+		error(c, 500, "failed to connect DB.")
 		return
 	}
 	if err := user.Delete(db); err != nil {
-		c.JSON(500, NewError("failed to delete record"))
+		error(c, 500, "failed to delete record.")
 		return
 	}
 

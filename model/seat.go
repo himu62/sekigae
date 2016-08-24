@@ -3,19 +3,44 @@ package model
 import (
 	"database/sql"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/himu62/sekigae/model/request"
 )
 
 type (
 	// Seats is seats table in the class room
-	Seats struct {
+	Seat struct {
 		ID      uint32
 		Created time.Time
 		Data    []User
 	}
 )
 
-func FindSeats(db *sql.DB) ([]Seats, error) {
-	seats := make([]Seats, 0, 30)
+// NewSeats creates Seats instance initialized by request
+func NewSeat(c *gin.Context) (*Seat, error) {
+	// クライアントからのリクエストを、リクエストモデルにバインドする
+	req := &request.Seat{}
+	if err := c.Bind(req); err != nil {
+		return nil, err
+	}
+
+	seat := &Seat{
+		Created: now(),
+		Data:    make([]User, 0, 30),
+	}
+
+	// リクエストモデルをDBのモデルに変換する
+	for _, v := range req.Data {
+		u := User{ID: v}
+		seat.Data = append(seat.Data, u)
+	}
+
+	return seat, nil
+}
+
+func FindSeats(db *sql.DB) ([]Seat, error) {
+	seats := make([]Seat, 0, 30)
 
 	rows, err := db.Query("SELECT ID, Created FROM seats")
 	if err != nil {
@@ -24,8 +49,8 @@ func FindSeats(db *sql.DB) ([]Seats, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var s Seats
-		if err := rows.Scan(&s.ID, &s.Created); err != nil {
+		s := &Seat{}
+		if err := rows.Scan(s.ID, s.Created); err != nil {
 			return nil, err
 		}
 
@@ -53,7 +78,7 @@ func FindSeats(db *sql.DB) ([]Seats, error) {
 			return nil, err
 		}
 
-		seats = append(seats, s)
+		seats = append(seats, *s)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -62,22 +87,22 @@ func FindSeats(db *sql.DB) ([]Seats, error) {
 	return seats, nil
 }
 
-func FindSeatsByID(db *sql.DB, id uint32) (*Seats, error) {
-	var seats Seats
+func FindSeatByID(db *sql.DB, id uint32) (*Seat, error) {
+	seat := &Seat{}
 	err := db.QueryRow("SELECT ID, Created FROM seats WHERE ID=?", id).
-		Scan(&seats.ID, &seats.Created)
+		Scan(seat.ID, seat.Created)
 	if err != nil {
 		return nil, err
 	}
 
-	seats.Data = make([]User, 0, 30)
+	seat.Data = make([]User, 0, 30)
 
 	data, err := db.Query(`
 		SELECT Name, Github, Image
 		FROM seats_users s
 		JOIN users u ON s.UserID=u.ID
 		WHERE s.SeatID=?
-		`, seats.ID)
+		`, seat.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,16 +113,16 @@ func FindSeatsByID(db *sql.DB, id uint32) (*Seats, error) {
 		if err := data.Scan(&u.Name, &u.Github, &u.Image); err != nil {
 			return nil, err
 		}
-		seats.Data = append(seats.Data, u)
+		seat.Data = append(seat.Data, u)
 	}
 	if err := data.Err(); err != nil {
 		return nil, err
 	}
 
-	return &seats, nil
+	return &seat, nil
 }
 
-func (seats *Seats) Insert(db *sql.DB) error {
+func (seat *Seat) Insert(db *sql.DB) error {
 	tx, err := db.Begin()
 	if err != nil {
 		return err
@@ -114,7 +139,7 @@ func (seats *Seats) Insert(db *sql.DB) error {
 		return err
 	}
 
-	for _, v := range seats.Data {
+	for _, v := range seat.Data {
 		if _, err := tx.Exec(
 			"INSERT INTO seats_users(SeatID, UserID) VALUES(?,?)",
 			seatID,
@@ -129,7 +154,7 @@ func (seats *Seats) Insert(db *sql.DB) error {
 	return nil
 }
 
-func (seats *Seats) Update(db *sql.DB) error {
+func (seat *Seat) Update(db *sql.DB) error {
 	tx, err := db.Begin()
 	if err != nil {
 		return err
@@ -137,16 +162,16 @@ func (seats *Seats) Update(db *sql.DB) error {
 
 	if _, err := tx.Exec(
 		"DELETE FROM seats_users WHERE SeatID=?",
-		seats.ID,
+		seat.ID,
 	); err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	for _, v := range seats.Data {
+	for _, v := range seat.Data {
 		if _, err := tx.Exec(
 			"INSERT INTO seats_users(SeatID, UserID) VALUES(?,?)",
-			seats.ID,
+			seat.ID,
 			v.ID,
 		); err != nil {
 			tx.Rollback()
@@ -158,14 +183,14 @@ func (seats *Seats) Update(db *sql.DB) error {
 	return nil
 }
 
-func (seats *Seats) Delete(db *sql.DB) error {
+func (seat *Seat) Delete(db *sql.DB) error {
 	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
 	if _, err := tx.Query(
 		"DELETE FROM seats WHERE ID=?",
-		seats.ID,
+		seat.ID,
 	); err != nil {
 		tx.Rollback()
 		return err

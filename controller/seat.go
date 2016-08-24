@@ -24,6 +24,10 @@ func AddSeatRoutes(r *gin.RouterGroup) {
 
 func (ctl *Seat) fetch(c *gin.Context) {
 	data := &model.Seats{}
+
+	// jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	// data.Created.In(jst)
+
 	c.JSON(200, data)
 }
 

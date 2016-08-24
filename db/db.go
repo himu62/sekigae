@@ -7,5 +7,5 @@ import (
 )
 
 func New() (*sql.DB, error) {
-	return sql.Open("mysql", "root:password@tcp(localhost:3306)/sekigae?collation=utf8mb4_unicode_ci&parseTime=true")
+	return sql.Open("mysql", "root:password@tcp(localhost:3306)/sekigae?charset=utf8mb4&parseTime=true")
 }
